@@ -457,7 +457,7 @@ class Ohloh
      */
     public function getProjectEnlistments()
     {
-        $url = 'http://www.ohloh.net/projects/'.$this->projectID.'enlistments.xml?api_key='.$this->apiKey.'&v='.$this->version;
+        $url = 'http://www.ohloh.net/projects/'.$this->projectID.'/enlistments.xml?api_key='.$this->apiKey.'&v='.$this->version;
         return $this->_process($url);
     }
     
@@ -609,6 +609,7 @@ class Ohloh
     private function _process($url)
     {
         $info = $this->_curlRequest($url);
+
         $infoObj = simplexml_load_string($info);
         if($infoObj->status != 'success')
         {
