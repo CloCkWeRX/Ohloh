@@ -455,10 +455,19 @@ class Ohloh
      * @return object SimpleXMLObject
      * @access public
      */
-    public function getProjectEnlistments()
+    public function getProjectEnlistments($page = null)
     {
         $url = 'http://www.ohloh.net/projects/'.$this->projectID.'/enlistments.xml?api_key='.$this->apiKey.'&v='.$this->version;
+        if ($page) {
+            $url .= '&page=' . (int)$page;
+        }
         return $this->_process($url);
+    }
+
+    public function getAllProjectEnlistments() {
+        $data = $this->getProjectEnlistments();
+        var_dump($data);
+
     }
     
     /**
