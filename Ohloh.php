@@ -464,10 +464,41 @@ class Ohloh
         return $this->_process($url);
     }
 
-    public function getAllProjectEnlistments() {
-        $data = $this->getProjectEnlistments();
-        var_dump($data);
+    /**
+     * A method to fetch all items from a collection.
+     *
+     * Be aware this method executes multiple http requests to fetch all pages available.
+     *
+     * <code>
+     * $client = new Ohloh(..., 'pear');
+     * print_r($client->getAll(array($client, 'getProjectEnlistments'));
+     * </code>
+     *
+     * @see http://meta.ohloh.net/getting_started/#collection_request
+     */
+    public function getAll($callback) {
+        $data = call_user_func($callback);
+        $n = $data->items_returned;
+        $i = 0;
 
+        $document = dom_import_simplexml($data)->parentNode;
+
+        while ((int)$data->items_available > $n) {
+            
+            $more_data = call_user_func($callback, $i);
+            $n += (int)$more_data->items_returned;
+    
+            foreach ($more_data->result->children() as $child) {
+                $results = $document->getElementsByTagName("result");
+
+                if ($results->length) {
+                    $results->item(0)->appendChild($document->importNode(dom_import_simplexml($child), true));
+                }
+            }
+        }
+
+
+        return simplexml_import_dom($document);
     }
     
     /**
@@ -619,15 +650,7 @@ class Ohloh
     {
         $info = $this->_curlRequest($url);
 
-        $infoObj = simplexml_load_string($info);
-        if($infoObj->status != 'success')
-        {
-            return FALSE;
-        }
-        else {
-            $data = $infoObj->result;
-            return $data;
-        }
+        return simplexml_load_string($info);
     }
     
     /**
@@ -654,5 +677,5 @@ class Ohloh
         curl_close($ch);
         return $code;
     }
+
 }
-?>
